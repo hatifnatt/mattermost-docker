@@ -12,14 +12,30 @@ services:
       - /var/run/postgresql
     volumes:
       - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
     environment:
       # timezone inside container
       - TZ
 
       # necessary Postgres options/variables
+      # Postgres superuser properties
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+
+      # DB user, password and DB name for Mattermost
+      # NB: it any of this variables are not set dedicated db and user for Mattermost won't be created
+      # you need to remove Postgres data directory to run init script again i.e.
+      # sudo rm -rf volumes/db/var/lib/postgresql/data/
+      - MM_DBUSER
+      - MM_DBPASSWORD
+      - MM_DB
+      - MM_DBHOST
+
+      # monitoring user for Postgres
+      # will be created only if username and password values are set
+      - MM_MON_DBUSER
+      - MM_MON_DBPASSWORD
 
   mattermost:
     depends_on:
